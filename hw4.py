@@ -238,7 +238,7 @@ def main():
     inventory2= {"Ice cream": 25, "Candy": 40, "Chocolate": 60}
     f1 = Customer("Ted", 50)
     f2 = Customer("Morgan", 150)
-    f3 = Customer("Katie", 1000)
+    f3 = Customer("Kate", 1000)
     s1 = Stall("The Grill Queen", inventory1, cost = 10)
     s2 = Stall("The Candy Hut", inventory2, cost = 9)
     c1 = Cashier("West", directory= [s2])
