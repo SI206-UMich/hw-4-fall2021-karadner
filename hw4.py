@@ -1,4 +1,5 @@
 import unittest
+import random
 
 # The Customer class
 # The Customer class represents a customer who will order from the stalls.
@@ -13,7 +14,7 @@ class Customer:
         self.wallet += deposit
 
     # The customer orders the food and there could be different cases   
-    def validate_order(self, cashier, stall, item_name, quantity):
+    def validate_order(self, cashier, stall, item_name, quantity, customer):
         if not(cashier.has_stall(stall)):
             print("Sorry, we don't have that vendor stall. Please try a different one.")
         elif not(stall.has_item(item_name, quantity)):  
@@ -21,7 +22,7 @@ class Customer:
         elif self.wallet < stall.compute_cost(quantity): 
             print("Don't have enough money for that :( Please reload more money!")
         else:
-            bill = cashier.place_order(stall, item_name, quantity) 
+            bill = cashier.place_order(stall, item_name, quantity,customer) 
             self.submit_order(cashier, stall, bill) 
     
     # Submit_order takes a cashier, a stall and an amount as parameters, 
@@ -43,6 +44,7 @@ class Cashier:
     def __init__(self, name, directory =[]):
         self.name = name
         self.directory = directory[:] # make a copy of the directory
+        self.accumulator=0
 
     # Whether the stall is in the cashier's directory
     def has_stall(self, stall):
@@ -60,9 +62,24 @@ class Cashier:
 	# The cashier pays the stall the cost.
 	# The stall processes the order
 	# Function returns cost of the order, using compute_cost method
-    def place_order(self, stall, item, quantity):
+    def place_order(self, stall, item, quantity, customer):
         stall.process_order(item, quantity)
+        self.accumulator += 1
+        self.tenth_customer(customer)
         return stall.compute_cost(quantity) 
+
+    
+    def tenth_customer(self, customer):
+        if self.accumulator % 10==0:
+            lottery_num=random.randrange(1,20)
+            if lottery_num==1:
+                customer.reload_money(10)
+            else:
+                pass
+        else:
+            pass
+
+
     
     # string function.
     def __str__(self):
@@ -202,11 +219,11 @@ class TestAllMethods(unittest.TestCase):
 	# Test validate order
     def test_validate_order(self):
 		# case 1: test if a customer doesn't have enough money in their wallet to order
-        self.assertFalse(self.f1.validate_order(self.c1,self.s1, "Burger", 3))
+        self.assertFalse(self.f1.validate_order(self.c1,self.s1, "Burger", 3,self.f1))
 		# case 2: test if the stall doesn't have enough food left in stock
-        self.assertFalse(self.f2.validate_order(self.c1,self.s1, "Burger", 100))
+        self.assertFalse(self.f2.validate_order(self.c1,self.s1,"Burger", 100, self.f2))
 		# case 3: check if the cashier can order item from that stall
-        self.assertFalse(self.f1.validate_order(self.c1,self.s3, "Burger", 3))
+        self.assertFalse(self.f1.validate_order(self.c1,self.s3, "Burger", 3, self.f1))
 
 
     # Test if a customer can add money to their wallet
@@ -230,21 +247,26 @@ def main():
     
     #Below you need to have *each customer instance* try the four cases
     #case 1: the cashier does not have the stall 
-    f1.validate_order(c1, s1, "Burger", 5)
-    f2.validate_order(c2, s2, "Ice Cream", 3)
-    f3.validate_order(c2, s2, "Candy", 4)
+    f1.validate_order(c1, s1, "Burger", 5, f1)
+    f2.validate_order(c2, s2, "Ice Cream", 3, f2)
+    f3.validate_order(c2, s2, "Candy", 4, f3)
     #case 2: the casher has the stall, but not enough ordered food or the ordered food item
-    f1.validate_order(c2, s1,"Chocolate", 65 )
-    f2.validate_order(c1, s2, "Burger", 100)
-    f3.validate_order(c2, s1, "Candy", 47)
+    f1.validate_order(c2, s1,"Chocolate", 65,f1 )
+    f2.validate_order(c1, s2, "Burger", 100,f2)
+    f3.validate_order(c2, s1, "Candy", 47,f3)
     #case 3: the customer does not have enough money to pay for the order: 
-    f1.validate_order(c1, s2, "Ice cream",7 )
-    f2.validate_order(c2, s1, "Burger", 20)
-    f3.validate_order(c2, s1, "Taco", 110)
+    f1.validate_order(c1, s2, "Ice cream",7 ,f1)
+    f2.validate_order(c2, s1, "Burger", 20,f2)
+    f3.validate_order(c2, s1, "Taco", 110,f3)
     #case 4: the customer successfully places an order
-    f1.validate_order(c1, s2, "Candy", 5)
-    f2.validate_order(c1, s2, "Chocolate", 2 )
-    f3.validate_order(c2,s1, "Fries", 1)
+    f1.validate_order(c1, s2, "Candy", 5,f1)
+    f2.validate_order(c1, s2, "Chocolate", 2 ,f2)
+    f3.validate_order(c2,s1, "Fries", 1,f3)
+
+    
+
+
+
 
 if __name__ == "__main__":
 	main()
